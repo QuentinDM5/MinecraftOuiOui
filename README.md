@@ -1,2 +1,2 @@
-# MinecraftOuiOui
-Dépôt pour tous les joueurs du serveur Minecraft OuiOui.
+# MinecraftOuiOui_Config
+Dépôt pour la configuration du serveur Minecraft OuiOui.
