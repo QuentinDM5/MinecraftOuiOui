@@ -1,0 +1,12 @@
+[Unit]
+Description=Serveur Minecraft - OuiOui
+After=network.target
+
+[Service]
+User=mon_minecraft_user
+Group=mon_minecraft_user
+WorkingDirectory=mon_working_dir
+ExecStart=/chemin_vers_le_launcher_shell/minecraft_ouioui_launcher.sh
+
+[Install]
+WantedBy=multi-user.target
