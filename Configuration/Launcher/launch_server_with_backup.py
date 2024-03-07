@@ -25,7 +25,6 @@ class MissingCompressionResultException(Exception):
     """
     Exception personnalisée pour les erreurs liées à l'absence de résultat suite à une compression.
     """
-    pass
 #endregion
 
 #region Fonctions utilitaires
@@ -53,34 +52,10 @@ def get_env_value(env_name: str) -> str:
     
     return env_value
 
-def compress_file(file_path: str, output_filename: str):
-    """
-    Compresse le fichier avec un niveau de compression maximal et donne le nom reçu au résultat.
-    """
-    # Vérifier que le fichier entrant existe bien
-    if not os.path.exists(file_path):
-        handle_exception(f"Le fichier à compresser \"{file_path}\" n'existe pas.")
-    
-    # Vérifier que le fichier entrant est bien un fichier
-    if not os.path.isfile(file_path):
-        handle_exception(f"Le chemin \"{file_path}\" ne correspond pas à un fichier.")
-
-    # Compresser au maximum le fichier reçu en lui donnant le nom reçu
-    try:
-        with tarfile.open(output_filename, "w:gz", compresslevel=9) as tar:
-            tar.add(file_path, arcname=os.path.basename(file_path))
-    except Exception as e:
-        error_message = f"Une erreur s'est produite lors de la compression du fichier {file_path}: {str(e)}"
-        logging.error(error_message)
-        raise Exception(error_message)
-        
-    # Vérifier que le fichier compressé a bien été créé
-    if os.path.exists(output_filename):
-        logging.info(f"Le fichier compressé {output_filename} a été créé avec succès.")
-    else:
-        handle_exception(f"Le fichier {output_filename} ne semble pas avoir été créé à partir de {file_path}.")
-    
 def compress_directory(directory_path, output_filename):
+    """
+    Compresse au format .tar.gz le directory_path reçu pour générer l'output_filename avec un niveau de compression maximal.
+    """
     # Vérifier que le dossier entrant existe bien
     if not os.path.exists(directory_path):
         handle_exception(f"Le dossier à compresser \"{directory_path}\" n'existe pas.")
@@ -90,6 +65,7 @@ def compress_directory(directory_path, output_filename):
         handle_exception(f"Le chemin \"{directory_path}\" ne correspond pas à un dossier.")
     
     try:
+        logging.info(f"Compression du dossier {directory_path} en cours...")
         # Utilisation de l'outil tar avec l'option -z pour la compression gzip et -9 pour le niveau de compression maximum
         with tarfile.open(output_filename, 'w:gz', compresslevel=9) as tar:
             tar.add(directory_path, arcname=os.path.basename(directory_path))
@@ -119,10 +95,14 @@ def init_logger():
     log_fullpath = os.path.join(logs_path, log_filename)
 
     # Configuration du logger
-    logging.basicConfig(filename=log_fullpath, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
+    #logging.basicConfig(filename=log_fullpath, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8') #Retrait pour Python 3.8.2
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
-    logging.info("Logger initialisé.")
-
+    file_handler = logging.FileHandler(log_fullpath, mode='w', encoding='utf-8')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
 def handle_backups():
     """
@@ -151,6 +131,7 @@ def handle_backups():
 
     # Si aucune backup préexistante, alors une backup est nécessaire
     if len(backups_files) <= 0:
+        logging.info("Aucune backup présente, sa génération est donc nécessaire.")
         is_backup_needed = True
         
     # Si backup non nécessaire (donc s'il y en a des préexistantes)
@@ -196,7 +177,8 @@ def handle_backups():
     logging.info("Fin du processus de backups.")
 
 
-def handle_minecraft_server() -> str | None:
+#def handle_minecraft_server() -> str | None: #Retrait pour Python 3.8.2
+def handle_minecraft_server() -> str:
     """
     Gère le serveur Minecraft.
     Il démarre le serveur, l'éteint à l'heure donnée en config, appelle le backups_handler, puis recommence.
@@ -224,12 +206,13 @@ def handle_minecraft_server() -> str | None:
     try:
         try:
             server_process = subprocess.Popen(fullLaunchCommand.split(), cwd=minecraft_server_path)
-            logging.info(f"Serveur Minecraft démarré à {time_when_reboot} avec la commande {fullLaunchCommand}")
+            logging.info(f"Serveur Minecraft démarré à {datetime.datetime.now()} avec la commande {fullLaunchCommand}")
         except Exception as e:
-            handle_exception(f"Impossible de démarrer (1ère fois) le serveur Minecraft à {time_when_reboot} avec la commande {fullLaunchCommand}", e)
+            handle_exception(f"Impossible de démarrer (1ère fois) le serveur Minecraft à {datetime.datetime.now()} avec la commande {fullLaunchCommand}", e)
         
         # Vérifier que le processus fut bien récupéré avant de boucler
         if server_process is not None:
+            logging.info(f"En attente de {time_when_reboot} après le {last_reboot_date} pour le redémarrage automatique...")
             # Boucler sur le redémarrage automatique et la gestion des backups du serveur Minecraft
             while True:
                 # Récupérer les informations temporelles actuelles
@@ -244,11 +227,12 @@ def handle_minecraft_server() -> str | None:
                 # S'il est actuellement un jour différent de celui du dernier redémarrage et qu'il est l'heure de redémarrer
                 #if current_date != last_reboot_date and current_time == time_when_reboot:
                 if current_time == time_when_reboot:
+                    logging.info(f"Il est {time_when_reboot} après {last_reboot_date} -> Extinction du serveur Minecraft...")
+
                     # La date du dernier redémarrage est désormais celui de la date courante
                     last_reboot_date = current_date
 
                     # Arrêter le processus
-                    logging.info(f"Il est {time_when_reboot} -> Extinction du serveur Minecraft...")
                     server_process.terminate()
                     server_process.wait()  # Attendre que le processus se termine
                     logging.info("Serveur Minecraft éteint.")
@@ -269,17 +253,18 @@ def handle_minecraft_server() -> str | None:
                     # Relancer le serveur Minecraft en tant que sous-processus
                     try:
                         server_process = subprocess.Popen(fullLaunchCommand.split(), cwd=minecraft_server_path)
-                        logging.info(f"Serveur Minecraft redémarré à {time_when_reboot} avec la commande {fullLaunchCommand}")
+                        logging.info(f"Serveur Minecraft redémarré à {datetime.datetime.now()} avec la commande {fullLaunchCommand}")
                     except Exception as e:
-                        handle_exception(f"Impossible de redémarrer le serveur Minecraft à {time_when_reboot} avec la commande {fullLaunchCommand}.", e)
+                        handle_exception(f"Impossible de redémarrer le serveur Minecraft à {datetime.datetime.now()} avec la commande {fullLaunchCommand}.", e)
                     
                     # Vérifier que le processus fut bien récupéré
                     if server_process is None:
                         handle_exception("Le processus n'a pas su être récupéré lors du redémarrage.")
+                        
+                    logging.info(f"En attente de {time_when_reboot} après le {last_reboot_date} pour le redémarrage automatique...")
                 else:
                     seconds_between_checks = int(get_env_value("SECONDS_BETWEEN_CHECKS"))
-                    logging.info(f"Il n'est pas encore {time_when_reboot} après la date du dernier reboot {last_reboot_date}, attente de {seconds_between_checks} secondes avant nouvelle vérification.")
-                    # Attendre une minute avant de vérifier à nouveau quand redémarrer
+                    # Attendre seconds_between_checks secondes avant de vérifier à nouveau quand redémarrer
                     time.sleep(seconds_between_checks)
         else:
             handle_exception("Le processus n'a pas su être récupéré lors du premier lancement.")
@@ -305,7 +290,7 @@ def main():
     """
     # Initialisation du logger
     init_logger()
-    logging.info("Initialisation du logger terminée, début du launcher.")
+    logging.info("Initialisation du logger réussie, début du Launcher.")
 
     # Gestion des backups
     handle_backups()
@@ -317,7 +302,7 @@ def main():
     if result_server is not None:
         handle_exception(result_server)
 
-    logging.info("Fin du launcher.")
+    logging.info("Fin du Launcher.")
 
 
 if __name__ == "__main__":
