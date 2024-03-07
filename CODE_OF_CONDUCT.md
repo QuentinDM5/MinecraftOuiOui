@@ -12,6 +12,6 @@ Lorsque les **modifications intégrées dans [DEV/main](https://github.com/Quent
 
 ### Sécurisation des données sensibles
 
-**Lors de l'utilisation de fichier contenant des données sensibles** de configuration (*par exemple les fichiers .env*), il faut, avant le commit, **les ajouter au [.gitignore](https://github.com/QuentinDM5/MinecraftOuiOui_Config/blob/main/.gitignore)** et **créer un fichier .env_exemple** avec des données bidons. Cela afin d'éviter la transmission des données sensibles tout en permettant de faciliter le développement.
+**Lors de l'utilisation de fichier contenant des données sensibles** de configuration (*par exemple les fichiers .env*), il faut, avant le commit, **les ajouter au [.gitignore](https://github.com/QuentinDM5/MinecraftOuiOui_Config/blob/main/.gitignore)** et **créer un fichier .env.example** avec des données bidons. Cela afin d'éviter la transmission des données sensibles tout en permettant de faciliter le développement.
 
 Il faut gérer le développement de sortes à ce que les **données de configuration sensibles soient distinguables du reste**. Cela dans le but de pouvoir les ajouter aisément au [.gitignore](https://github.com/QuentinDM5/MinecraftOuiOui_Config/blob/main/.gitignore).

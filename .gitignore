@@ -1,0 +1,19 @@
+# Configuration/Launcher files
+Configuration/Launcher/minecraft_ouioui_launcher.sh
+
+# Configuration/Launcher/Logs files
+Configuration/Launcher/logs_launcher
+
+# Configuration/Launcher/Backups files
+Configuration/Launcher/server_backups
+
+# Configuration/Launcher/Env files
+Configuration/Launcher/.env
+Configuration/Launcher/.env_linux
+Configuration/Launcher/.env_windows
+
+# Configuration/Launcher/Server files
+Configuration/Launcher/server
+
+# Configuration/Service files
+Configuration/Service/ServeurMinecraftOuiOui.service

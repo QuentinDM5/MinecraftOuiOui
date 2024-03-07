@@ -1,0 +1,2 @@
+#!/bin/bash
+/chemin_vers_l'executable_python/python /chemin_vers_le_fichier_launcher_python/launch_server_with_backup.py
