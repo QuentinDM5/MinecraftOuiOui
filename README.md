@@ -1,5 +1,5 @@
 # MinecraftOuiOui
-Dépôt pour la configuration du serveur Minecraft OuiOui.
+Dépôt pour les informations et la configuration liés au serveur Minecraft OuiOui.
 
-## Description du serveur physique
+## Informations techniques globales
 Le serveur Minecraft OuiOui tourne actuellement sur une machine serveur **Ubuntu Server 20.04**.
