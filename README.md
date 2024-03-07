@@ -1,4 +1,4 @@
-# MinecraftOuiOui_Config
+# MinecraftOuiOui
 Dépôt pour la configuration du serveur Minecraft OuiOui.
 
 ## Description du serveur physique
