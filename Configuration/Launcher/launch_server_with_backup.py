@@ -225,8 +225,7 @@ def handle_minecraft_server() -> str:
                     handle_exception(f"Le sous-processus du serveur Minecraft s'est interrompu avec le code de retour -> {returncode}")
 
                 # S'il est actuellement un jour différent de celui du dernier redémarrage et qu'il est l'heure de redémarrer
-                #if current_date != last_reboot_date and current_time == time_when_reboot:
-                if current_time == time_when_reboot:
+                if current_date != last_reboot_date and current_time == time_when_reboot:
                     logging.info(f"Il est {time_when_reboot} après {last_reboot_date} -> Extinction du serveur Minecraft...")
 
                     # La date du dernier redémarrage est désormais celui de la date courante
