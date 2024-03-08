@@ -213,6 +213,10 @@ def handle_minecraft_server() -> str:
         # Vérifier que le processus fut bien récupéré avant de boucler
         if server_process is not None:
             logging.info(f"En attente de {time_when_reboot} après le {last_reboot_date} pour le redémarrage automatique...")
+
+            # Initialisation du nombre de redémarrages
+            nb_reboots = 0
+
             # Boucler sur le redémarrage automatique et la gestion des backups du serveur Minecraft
             while True:
                 # Récupérer les informations temporelles actuelles
@@ -228,8 +232,9 @@ def handle_minecraft_server() -> str:
                 if current_date != last_reboot_date and current_time == time_when_reboot:
                     logging.info(f"Il est {time_when_reboot} après {last_reboot_date} -> Extinction du serveur Minecraft...")
 
-                    # La date du dernier redémarrage est désormais celui de la date courante
+                    # La date du dernier redémarrage est désormais celui de la date courante et incrémentation du nombre de redémarrages
                     last_reboot_date = current_date
+                    nb_reboots = nb_reboots + 1
 
                     # Arrêter le processus
                     server_process.terminate()
@@ -252,7 +257,7 @@ def handle_minecraft_server() -> str:
                     # Relancer le serveur Minecraft en tant que sous-processus
                     try:
                         server_process = subprocess.Popen(fullLaunchCommand.split(), cwd=minecraft_server_path)
-                        logging.info(f"Serveur Minecraft redémarré à {datetime.datetime.now()} avec la commande {fullLaunchCommand}")
+                        logging.info(f"Serveur Minecraft redémarré pour la {nb_reboots}ère/ème fois à {datetime.datetime.now()} avec la commande {fullLaunchCommand}")
                     except Exception as e:
                         handle_exception(f"Impossible de redémarrer le serveur Minecraft à {datetime.datetime.now()} avec la commande {fullLaunchCommand}.", e)
                     
